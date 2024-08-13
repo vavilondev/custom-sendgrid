@@ -1,11 +1,7 @@
 {
-  "name": "medusa-plugin-sendgrid-typescript",
-  "version": "2.1.3",
+  "name": "custom-medusa-sendgrid-plugin",
+  "version": "1.0.9",
   "description": "SendGrid transactional emails typescript",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/luluhoc/medusa-plugin-sendgrid-typescript.git"
-  },
   "engines": {
     "node": ">=16"
   },
@@ -13,7 +9,7 @@
   "files": [
     "dist"
   ],
-  "author": "Lucjan Grzesik | Oliver Juhl ",
+  "author": "Daniil Sadovskyi",
   "license": "MIT",
   "devDependencies": {
     "@medusajs/medusa": "^1.20.1",
@@ -44,7 +40,6 @@
     "@sendgrid/mail": "^8.1.0",
     "medusa-core-utils": "^1.2.0"
   },
-  "gitHead": "3bbd1e8507e00bc471de6ae3c30207999a4a4011",
   "keywords": [
     "medusa-plugin",
     "medusa-plugin-notification"

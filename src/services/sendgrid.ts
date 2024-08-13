@@ -4,9 +4,11 @@ import { NotificationService } from "medusa-interfaces"
 import { MedusaError } from "@medusajs/utils"
 import { AttachmentsArray, FromFullFilementService, NewLineItem, EventData, SendGridData } from "../types/generic"
 import { PluginOptions } from "../types"
-import type { CartService, ClaimService, FulfillmentProviderService, 
-  GiftCardService, LineItem, LineItemService, Logger, Order,  OrderService, ProductVariantService, Return, ReturnItem, ReturnService, 
-  StoreService, SwapService, TotalsService } from "@medusajs/medusa"
+import type {
+  CartService, ClaimService, FulfillmentProviderService,
+  GiftCardService, LineItem, LineItemService, Logger, Order, OrderService, ProductVariantService, Return, ReturnItem, ReturnService,
+  StoreService, SwapService, TotalsService
+} from "@medusajs/medusa"
 
 export class SendGridService extends NotificationService {
   static identifier = "sendgrid"
@@ -125,9 +127,9 @@ export class SendGridService extends NotificationService {
     }
   }
 
-  
 
-  async fetchData(event: string, eventData: EventData, 
+
+  async fetchData(event: string, eventData: EventData,
     attachmentGenerator: any): Promise<Record<any, any>> {
     switch (event) {
       case "order.return_requested":
@@ -147,6 +149,7 @@ export class SendGridService extends NotificationService {
       case "order.gift_card_created":
         return this.gcCreatedData(eventData)
       case "order.placed":
+        console.log('150', eventData)
         return this.orderPlacedData(eventData)
       case "order.shipment_created":
         return this.orderShipmentCreatedData(eventData, attachmentGenerator)
@@ -155,6 +158,7 @@ export class SendGridService extends NotificationService {
       case "user.password_reset":
         return this.userPasswordResetData(eventData)
       case "customer.password_reset":
+        console.log('158', eventData)
         return this.customerPasswordResetData(eventData)
       case "restock-notification.restocked":
         return await this.restockNotificationData(
@@ -172,35 +176,35 @@ export class SendGridService extends NotificationService {
       const map = this.options_.localization[locale]
       switch (event) {
         case "order.return_requested":
-          return map.order_return_requested_template?.[subject ? "subject": "id"]
+          return map.order_return_requested_template?.[subject ? "subject" : "id"]
         case "swap.shipment_created":
-          return map.swap_shipment_created_template?.[subject ? "subject": "id"]
+          return map.swap_shipment_created_template?.[subject ? "subject" : "id"]
         case "claim.shipment_created":
-          return map.claim_shipment_created_template?.[subject ? "subject": "id"]
+          return map.claim_shipment_created_template?.[subject ? "subject" : "id"]
         case "order.items_returned":
-          return map.order_items_returned_template?.[subject ? "subject": "id"]
+          return map.order_items_returned_template?.[subject ? "subject" : "id"]
         case "swap.received":
-          return map.swap_received_template?.[subject ? "subject": "id"]
+          return map.swap_received_template?.[subject ? "subject" : "id"]
         case "swap.created":
-          return map.swap_created_template?.[subject ? "subject": "id"]
+          return map.swap_created_template?.[subject ? "subject" : "id"]
         case "gift_card.created":
-          return map.gift_card_created_template?.[subject ? "subject": "id"]
+          return map.gift_card_created_template?.[subject ? "subject" : "id"]
         case "order.gift_card_created":
-          return map.gift_card_created_template?.[subject ? "subject": "id"]
+          return map.gift_card_created_template?.[subject ? "subject" : "id"]
         case "order.placed":
-          return map.order_placed_template?.[subject ? "subject": "id"]
+          return map.order_placed_template?.[subject ? "subject" : "id"]
         case "order.shipment_created":
-          return map.order_shipment_created_template?.[subject ? "subject": "id"]
+          return map.order_shipment_created_template?.[subject ? "subject" : "id"]
         case "order.canceled":
-          return map.order_canceled_template?.[subject ? "subject": "id"]
+          return map.order_canceled_template?.[subject ? "subject" : "id"]
         case "user.password_reset":
-          return map.user_password_reset_template?.[subject ? "subject": "id"]
+          return map.user_password_reset_template?.[subject ? "subject" : "id"]
         case "customer.password_reset":
-          return map.customer_password_reset_template?.[subject ? "subject": "id"]
+          return map.customer_password_reset_template?.[subject ? "subject" : "id"]
         case "restock-notification.restocked":
-          return map.medusa_restock_template?.[subject ? "subject": "id"]
+          return map.medusa_restock_template?.[subject ? "subject" : "id"]
         case "order.refund_created":
-          return map.order_refund_created_template?.[subject ? "subject": "id"]
+          return map.order_refund_created_template?.[subject ? "subject" : "id"]
         default:
           return null
       }
@@ -218,7 +222,7 @@ export class SendGridService extends NotificationService {
       )
     })
     // @ts-expect-error - wrong types in options_
-    return this.options_.templates[key]?.[subject ? "subject": "id"]
+    return this.options_.templates[key]?.[subject ? "subject" : "id"]
   }
 
   getSubjectVariable(template: string) {
@@ -231,7 +235,7 @@ export class SendGridService extends NotificationService {
     }
     return variables
   }
-  
+
 
   async sendNotification(event: string, eventData: EventData, attachmentGenerator?: any) {
     const data = await this.fetchData(event, eventData, attachmentGenerator)
@@ -239,7 +243,7 @@ export class SendGridService extends NotificationService {
     let templateId = this.getTemplateId(event)
 
     let subject = this.getTemplateId(event, true)
-    
+
     if (data.locale) {
       const localizedTemplateId = this.getLocalizedTemplateId(event, data.locale)
       const localizedSubject = this.getLocalizedTemplateId(event, data.locale, true)
@@ -284,7 +288,7 @@ export class SendGridService extends NotificationService {
           if (data[variable]) {
             subject = subject.replace(`{${variable}}`, data[variable])
           }
-      })
+        })
       }
       data.subject = subject
     }
@@ -295,22 +299,57 @@ export class SendGridService extends NotificationService {
       attachmentGenerator
     )
 
+    const extractAfterBrackets = (input: string) => {
+      if (input.includes(']')) {
+        const closingBracketIndex = input.lastIndexOf(']');
+        return input.slice(closingBracketIndex + 1).trim();
+      }
+      return input;
+    }
+
+    console.log('otpions', this.options_)
     const sendOptions: SendGrid.MailDataRequired = {
       templateId: templateId,
       from: this.options_.from,
       to: data.email,
       bcc: this.options_.orderPlacedBcc && event === "order.placed" ? this.options_.orderPlacedBcc : undefined,
-      dynamicTemplateData: data,
+      dynamicTemplateData: {
+        ...data,
+        frontend_url: this.options_["frontend_url"],
+        shipping_option_name: extractAfterBrackets(data.shipping_methods[0].shipping_option.name),
+        shipping_address: {
+          ...data.shipping_address,
+          country_code: data.shipping_address.country_code.toUpperCase()
+        },
+        billing_address: {
+          ...data.billing_address,
+          country_code: data.billing_address.country_code.toUpperCase()
+        }
+      },
     }
-    
+    console.log(307, sendOptions?.dynamicTemplateData?.shipping_address)
     const dataToDb = {
       template_id: templateId,
       from: this.options_.from,
       to: data.email,
       bcc: this.options_.orderPlacedBcc && event === "order.placed" ? this.options_.orderPlacedBcc : undefined,
-      dynamic_template_data: data,
+      dynamic_template_data: {
+        ...data,
+        frontend_url: this.options_["frontend_url"],
+        shipping_option_name: extractAfterBrackets(data.shipping_methods[0].shipping_option.name),
+        shipping_address: {
+          ...data.shipping_address,
+          country_code: data.shipping_address.country_code.toUpperCase()
+        },
+        billing_address: {
+          ...data.billing_address,
+          country_code: data.billing_address.country_code.toUpperCase()
+        }
+      },
       has_attachments: attachments?.length > 0,
     }
+    // @ts-ignore
+    console.log(316, dataToDb?.dynamic_template_data?.shipping_methods)
 
 
     if (attachments?.length) {
@@ -413,7 +452,7 @@ export class SendGridService extends NotificationService {
         `Sendgrid service: No fulfillment_id was set for event: order.shipment_created`
       )
     }
-    
+
     const shipment = await this.fulfillmentService_.retrieve(fulfillment_id, {
       relations: ["items", "tracking_links"],
     })
@@ -483,9 +522,8 @@ export class SendGridService extends NotificationService {
         return {
           is_giftcard: false,
           code: discount.code,
-          descriptor: `${discount.rule.value}${
-            discount.rule.type === "percentage" ? "%" : ` ${currencyCode}`
-          }`,
+          descriptor: `${discount.rule.value}${discount.rule.type === "percentage" ? "%" : ` ${currencyCode}`
+            }`,
         }
       })
     }
@@ -570,7 +608,7 @@ export class SendGridService extends NotificationService {
 
     const currencyCode = order.currency_code.toUpperCase()
 
-    
+
     const promises: Promise<any>[] = [];
 
     order.items.forEach((item) => {
@@ -601,7 +639,7 @@ export class SendGridService extends NotificationService {
       })
 
     }
-  
+
 
     let discounts: {
       is_giftcard: boolean
@@ -614,9 +652,8 @@ export class SendGridService extends NotificationService {
         return {
           is_giftcard: false,
           code: discount.code,
-          descriptor: `${discount.rule.value}${
-            discount.rule.type === "percentage" ? "%" : ` ${currencyCode}`
-          }`,
+          descriptor: `${discount.rule.value}${discount.rule.type === "percentage" ? "%" : ` ${currencyCode}`
+            }`,
         }
       })
     }
@@ -806,10 +843,10 @@ export class SendGridService extends NotificationService {
         tax_lines: found.tax_lines,
         thumbnail: this.normalizeThumbUrl_(found.thumbnail),
       })
-      
+
     }
 
-    
+
     // Get total of the returned products
     const item_subtotal = returnItems.reduce(
       (acc, next) => acc + next.totals.total,
@@ -885,7 +922,7 @@ export class SendGridService extends NotificationService {
       }
     )
 
-    
+
     returnRequest.items = returnRequest.items.map((item) => {
       const found = items.find((i) => i.id === item.item_id)
       if (!found) {
@@ -1199,7 +1236,7 @@ export class SendGridService extends NotificationService {
         relations: ["tax_lines", "variant.product.profiles"],
       }
     )
-    
+
 
     const taxRate = (order.tax_rate || 0) / 100
     const currencyCode = order.currency_code.toUpperCase()
@@ -1386,9 +1423,8 @@ export class SendGridService extends NotificationService {
     return {
       order,
       refund,
-      refund_amount: `${this.humanPrice_(refund?.amount, order.currency_code)} ${
-        order.currency_code
-      }`,
+      refund_amount: `${this.humanPrice_(refund?.amount, order.currency_code)} ${order.currency_code
+        }`,
       email: order.email,
     }
   }
